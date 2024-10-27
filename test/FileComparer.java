@@ -14,8 +14,8 @@ import java.nio.file.Paths;
 public class FileComparer {
 
     public static void main(String[] args) {
-        String filePath1 = "D:\\CUPRUM\\PTIT\\Term 7\\Network Programming\\LFT\\server_storage\\received_file.txt";
-        String filePath2 = "D:\\CUPRUM\\PTIT\\Term 7\\Network Programming\\LFT\\server_storage\\test_text.txt";
+        String filePath1 = "server_storage\\received_file.txt";
+        String filePath2 = "server_storage\\test_text.txt";
         try {
             boolean areEqual = compareFiles(filePath1, filePath2);
             if (areEqual) {

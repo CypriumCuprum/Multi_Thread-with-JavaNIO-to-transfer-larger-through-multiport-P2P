@@ -68,7 +68,7 @@ public class FileReceiver {
     private static void receiveFilePart(SocketChannel socketChannel, long position) {
         try {
             ByteBuffer buffer = ByteBuffer.allocate(PART_SIZE);
-            Path outputPath = Path.of("D:\\CUPRUM\\PTIT\\Term 7\\Network Programming\\LFT\\server_storage\\received_file.txt");
+            Path outputPath = Path.of("server_storage\\received_file.txt");
             OpenOption[] options = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
 
             // Mở FileChannel để ghi dữ liệu

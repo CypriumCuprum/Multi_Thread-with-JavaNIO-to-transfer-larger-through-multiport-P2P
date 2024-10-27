@@ -22,8 +22,8 @@ public class MultiFileChannelReadWithThreads {
     private static final int PART_SIZE = 1024 * 1024; // Kích thước từng phần (bytes)
 
     public static void main(String[] args) {
-        Path path = Path.of("D:\\CUPRUM\\PTIT\\Term 7\\Network Programming\\LFT\\server_storage\\test_text.txt");
-
+        Path path = Path.of("server_storage\\test_text.txt");
+        System.out.println("Absolute path: " + path.toAbsolutePath());
         // Đọc đơn giản kiểu tạo nhiều luồng để đọc file for test là
 //        ExecutorService executor = Executors.newFixedThreadPool(3); // Tạo pool với 3 luồng
 //
