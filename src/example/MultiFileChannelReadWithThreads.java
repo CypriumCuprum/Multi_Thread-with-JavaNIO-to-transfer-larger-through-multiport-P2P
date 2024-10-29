@@ -19,10 +19,11 @@ import java.util.concurrent.Executors;
 
 public class MultiFileChannelReadWithThreads {
 
-    private static final int PART_SIZE = 1024 * 1024; // Kích thước từng phần (bytes)
+    private static final int PART_SIZE = 1024 * 1024 * 1024 * 3; // Kích thước từng phần (bytes)
+    private static final int BUFFER_SIZE = 1024 * 128;
 
     public static void main(String[] args) {
-        Path path = Path.of("server_storage\\test_text.txt");
+        Path path = Path.of("server_storage\\file.txt");
         System.out.println("Absolute path: " + path.toAbsolutePath());
         // Đọc đơn giản kiểu tạo nhiều luồng để đọc file for test là
 //        ExecutorService executor = Executors.newFixedThreadPool(3); // Tạo pool với 3 luồng
@@ -39,8 +40,7 @@ public class MultiFileChannelReadWithThreads {
         //số cổng bằng số port ( đơn giản là chia cho mỗi cổng nhận một part)
         String[] hosts = {"localhost:5001", "localhost:5002", "localhost:5003", "localhost:5004"}; // Các cổng khác nhau
         ExecutorService executor = Executors.newFixedThreadPool(hosts.length); // Tạo pool với số lượng luồng bằng số lượng cổng
-
-        for (int i = 0; i < hosts.length; i++) {
+        for (int i = 0; i < 1; i++) {
             final int partIndex = i;
             executor.submit(() -> sendFilePart(path, partIndex * PART_SIZE, hosts[partIndex]));
         }
@@ -92,19 +92,36 @@ public class MultiFileChannelReadWithThreads {
 //    }
     private static void sendFilePart(Path path, long position, String hostPort) {
         try (SocketChannel socketChannel = SocketChannel.open(new java.net.InetSocketAddress(hostPort.split(":")[0], Integer.parseInt(hostPort.split(":")[1])))) {
-            synchronized (socketChannel) { // Đồng bộ hóa trên socketChannel
-                try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
-                    channel.position(position); // Đặt vị trí đọc
-                    ByteBuffer buffer = ByteBuffer.allocate(PART_SIZE);
-
-                    int bytesRead = channel.read(buffer);
-                    if (bytesRead > 0) {
-                        buffer.flip();
-                        socketChannel.write(buffer);
-                        System.out.println("Sent part from position " + position + " to " + hostPort + ": " + new String(buffer.array(), 0, bytesRead));
+//            synchronized (socketChannel) { // Đồng bộ hóa trên socketChannel
+            try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
+                channel.position(position); // Đặt vị trí đọc
+                ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                int noOfBytesRead = 0;
+                long counter = 0;
+                do {
+                    noOfBytesRead = channel.read(buffer);
+                    if (noOfBytesRead <= 0) {
+                        break;
                     }
-                }
+                    if (counter == PART_SIZE) {
+                        break;
+                    }
+                    counter += noOfBytesRead;
+                    buffer.flip();
+                    do {
+                        noOfBytesRead -= socketChannel.write(buffer);
+                    } while (noOfBytesRead > 0);
+                    buffer.clear();
+                } while (true);
+                System.out.println("Sent part from position " + position + " to " + hostPort);
+//                    int bytesRead = channel.read(buffer);
+//                    if (bytesRead > 0) {
+//                        buffer.flip();
+//                        socketChannel.write(buffer);
+//                        System.out.println("Sent part from position " + position + " to " + hostPort + ": " + new String(buffer.array(), 0, bytesRead));
+//                    }
             }
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }

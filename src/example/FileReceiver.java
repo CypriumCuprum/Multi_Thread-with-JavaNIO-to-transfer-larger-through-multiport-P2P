@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 public class FileReceiver {
 
     private static final int PART_SIZE = 1024 * 1024; // Kích thước từng phần (bytes)
+    private static final int BUFFER_SIZE = 1024 * 128;
 
     public static void main(String[] args) {
         int[] ports = {5001, 5002, 5003, 5004}; // Các cổng khác nhau
@@ -68,7 +69,7 @@ public class FileReceiver {
     private static void receiveFilePart(SocketChannel socketChannel, long position) {
         try {
             ByteBuffer buffer = ByteBuffer.allocate(PART_SIZE);
-            Path outputPath = Path.of("server_storage\\received_file.txt");
+            Path outputPath = Path.of("server_storage\\received_file2.txt");
             OpenOption[] options = {StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
 
             // Mở FileChannel để ghi dữ liệu
